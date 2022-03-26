@@ -55,6 +55,6 @@ foreach ($security in $securities) {
 }
 
 switch ($display) {
-    "grid" { $results | Out-GridView }
+    "grid" { $results | Out-GridView -Title "CBPro Fills Data" }
     "table" { $results | Format-Table -AutoSize }
 }
