@@ -3,15 +3,14 @@
     Analyzes Coinbase Fills report. 
     Displays results in PS Gridview or Console Table
     2022 Josh Konecki
-#>
 
-<#
     Parameters
     csv - specify the location of the CoinbasePro Fills report.
           Default is .\fills.csv
-    display - grid or table. 
-              grid opens up PS Gridview, table outputs to console window.
+    display - grid,table,none. 
+              grid opens up PS Gridview, table outputs to console window, "none" skips report display.
     beginDate/endDate "MM/DD/YYYY" - only processes fills after beginDate or before endDate.
+    outFile - fullpath for csv output. Example: "\Drive:\directory\file.csv"
 #>
 
 param (
