@@ -11,25 +11,36 @@
           Default is .\fills.csv
     display - grid or table. 
               grid opens up PS Gridview, table outputs to console window.
+    beginDate/endDate "MM/DD/YYYY" - only processes fills after beginDate or before endDate.
 #>
 
 param (
     [string]$csv = '.\fills.csv',
     [ValidateSet("grid", "table")]
-    [string]$display = "table"
+    [string]$display = "table",
+    [DateTime]$beginDate,
+    [DateTime]$endDate
 )
 
 [System.Collections.ArrayList]$results = @()
 
 # Load CSV rows into object array
 $Fills = Import-Csv -Path "$importFile" 
+
+if ($beginDate -ne $null) {
+    $Fills = $Fills | Where-Object { [DateTime]$_."created at" -gt $beginDate }
+}
+if ($endDate -ne $null) {
+    $Fills = $Fills | Where-Object { [Datetime]$_."created at" -lt $endDate }
+}
+
 $securities = $Fills."size unit" | Sort-Object | Get-Unique -AsString
 
 foreach ($security in $securities) {
-    [double]$expense = 0
-    [double]$income = 0
+    $expense = 0
+    $income = 0
     $quantSold = 0
-    $quantPurchased = 0
+    $quantBought = 0
 
     $securityData = $Fills | Where-Object { $_."size unit" -eq $security }
     $securitySell = $securityData | Where-Object { $_.side -eq "SELL" }
@@ -41,13 +52,19 @@ foreach ($security in $securities) {
     }
     foreach ($row in $securityBuy) {
         $expense += ( [float]$row.size * [float]$row.price )
-        $quantPurchased += [float]$row.size
+        $quantBought += [float]$row.size
     }
 
+    if ($quantSold -eq 0) { $averageSellPrice = "None Sold" }
+    else { $averageSellPrice = ( $income / $quantSold ).ToString("C3") }
+
+    if ($quantBought -eq 0) { $averageBuyPrice = "None Bought" }
+    else { $averageBuyPrice = ( $expense / $quantBought ).ToString("C3") }
+    
     $results += [PSCustomObject]@{
         Security           = $security
-        Average_Buy_Price  = ( $expense / $quantPurchased ).ToString("C3")
-        Average_Sell_Price = ( $income / $quantSold ).ToString("C3")
+        Average_Buy_Price  = $averageBuyPrice
+        Average_Sell_Price = $averageSellPrice
         Income             = $income.ToString("C")
         Expense            = $expense.ToString("C")
         Profit             = ($income - $expense).ToString("C")
