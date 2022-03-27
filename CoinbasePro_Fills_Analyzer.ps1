@@ -16,13 +16,14 @@
 
 param (
     [string]$csv = '.\fills.csv',
-    [ValidateSet("grid", "table")]
+    [ValidateSet("grid", "table", "none")]
     [string]$display = "table",
+    [string]$outFile,
     [DateTime]$beginDate,
     [DateTime]$endDate
 )
-
 [System.Collections.ArrayList]$results = @()
+
 
 # Load CSV rows into object array
 $Fills = Import-Csv -Path "$importFile" 
@@ -74,4 +75,11 @@ foreach ($security in $securities) {
 switch ($display) {
     "grid" { $results | Out-GridView -Title "CBPro Fills Data" }
     "table" { $results | Format-Table -AutoSize }
+    "none" { "Skipping display." }
+}
+
+if ($outFile) {
+    $results | Export-Csv -NoTypeInformation -Path "$outFile"
+    if ($?) { Write-Output "${outFile} Successfully created." }
+    else { Write-Output "Failed to create $outFile." }
 }
