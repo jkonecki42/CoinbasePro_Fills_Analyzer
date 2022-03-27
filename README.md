@@ -1,6 +1,7 @@
 # CoinbasePro_Fills_Analyzer
 Queries CoinbasePro fills report for useful information.
 You can specify a date range to analyze.
+Using the outFile parameter, you can export the results to a csv.
 
 Example Reports
 
